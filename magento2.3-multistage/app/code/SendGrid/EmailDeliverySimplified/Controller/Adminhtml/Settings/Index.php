@@ -3,8 +3,9 @@
 namespace SendGrid\EmailDeliverySimplified\Controller\Adminhtml\Settings;
 
 use \Psr\Log\LoggerInterface;
-use \Magento\Framework\Mail\Message;
 use \Magento\Backend\App\Action\Context;
+
+use SendGrid\EmailDeliverySimplified\Model\Message;
 use SendGrid\EmailDeliverySimplified\Model\Transport;
 use SendGrid\EmailDeliverySimplified\Block\Adminhtml\SettingsGeneralBlock;
 
