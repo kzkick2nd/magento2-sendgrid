@@ -12,9 +12,6 @@ use SendGrid\EmailDeliverySimplified\Helper\API;
 use SendGrid\EmailDeliverySimplified\Helper\Tools;
 use SendGrid\EmailDeliverySimplified\Model\GeneralSettings;
 
-use Zend\Mail\Headers as ZendHeaders;
-use Zend\Mail\Message as ZendMessage;
-
 class Transport implements TransportInterface
 {
   /**
@@ -118,9 +115,7 @@ class Transport implements TransportInterface
             $xsmtpapi_header['asm_group_id'] = intval($asm_group_id);
         }
 
-        $headers = new ZendHeaders();
-        $headers->addHeaderLine('x-smtpapi', json_encode($xsmtpapi_header));
-        $this->_zendMessage->setHeaders($headers);
+        $this->message->getHeaders()->addHeaderLine('x-smtpapi', json_encode($xsmtpapi_header));
 
         if (! empty($from)) {
             $this->message->setFrom($from);
@@ -188,7 +183,7 @@ class Transport implements TransportInterface
 
         // Add To's
         foreach ($recipients as $to) {
-            $email = new API\Email(null, trim($to));
+            $email = new API\Email(null, trim($to->getEmail()));
             $personalization->addTo($email);
         }
 
@@ -288,15 +283,17 @@ class Transport implements TransportInterface
             if (! $this->moduleManager->isOutputEnabled('SendGrid_EmailDeliverySimplified')) {
                 $this->logger->debug('[SendGrid] Module is not enabled. Email is sent via vendor Zend Mail.');
 
-            if (! $this->_moduleManager->isOutputEnabled('SendGrid_EmailDeliverySimplified')) {
-                $this->_logger->debug('[SendGrid] Module is not enabled. Email is sent via vendor Zend Mail.');
-                parent::send($this->_message);
+                $this->zendTransport->send(
+                    ZendMessage::fromString($this->message->getRawMessage())
+                );
 
                 return;
             }
 
             if ('smtp' == $send_method or empty(trim($apikey))) {
-                parent::send($this->_message);
+                $this->zendTransport->send(
+                    ZendMessage::fromString($this->message->getRawMessage())
+                );
             } else {
                 // Compose JSON payload of email send request
                 $payload = $this->getAPIMessage();
