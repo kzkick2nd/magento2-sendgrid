@@ -195,4 +195,35 @@ class Message implements MailMessageInterface
         $this->setMessageType(Mime::TYPE_TEXT);
         return $this->setBody($text);
     }
+
+    /**
+     * FIXME: extends methods
+     * Magento 2.3.3 以降なら zendMessage が protected になる
+     */
+
+    public function getHeaders()
+    {
+        return $this->zendMessage->getHeaders();
+    }
+
+    public function getFrom()
+    {
+        return $this->zendMessage->getFrom();
+    }
+
+    public function getTo()
+    {
+        return $this->zendMessage->getTo();
+    }
+
+    public function getBodyText()
+    {
+        return $this->zendMessage->getBodyText();
+    }
+
+    public function getReplyTo()
+    {
+        return $this->zendMessage->getReplyTo();
+    }
+
 }
