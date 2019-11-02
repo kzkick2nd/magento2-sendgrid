@@ -20,25 +20,24 @@ class Transport implements TransportInterface
   /**
    * @var \Magento\Framework\Mail\MessageInterface
    */
-    protected $_message;
+    protected $message;
 
   /**
    * @var \Psr\Log\LoggerInterface
    */
-    protected $_logger;
+    protected $logger;
 
   /**
    * @var SendGrid\EmailDeliverySimplified\Model\GeneralSettings
    */
-    protected $_generalSettings;
+    protected $generalSettings;
 
   /**
    * @var \Magento\Framework\Module\Manager
    */
-    protected $_moduleManager;
+    protected $moduleManager;
 
-    protected $_zendTransport;
-    protected $_zendMessage;
+    protected $zendTransport;
 
   /**
    * @const   string  SendGrid SMTP hostname
@@ -57,21 +56,18 @@ class Transport implements TransportInterface
         LoggerInterface $loggerInterface,
         Manager         $moduleManager
     ) {
-        $this->_logger          = $loggerInterface;
-        $this->_message         = $message;
-        $this->_generalSettings = $generalSettings;
-        $this->_moduleManager   = $moduleManager;
-        $this->_zendMessage     = new ZendMessage();
+        $this->logger          = $loggerInterface;
+        $this->message         = $message;
+        $this->generalSettings = $generalSettings;
+        $this->moduleManager   = $moduleManager;
 
-        $smtp_port = $this->_generalSettings->getSMTPPort();
+        $smtp_port = $this->generalSettings->getSMTPPort();
         if (empty($smtp_port)) {
             $smtp_port = 587;
         }
 
-        $apikey = $this->_generalSettings->getAPIKey();
-        if (empty($apikey) || ! $this->_moduleManager->isOutputEnabled('SendGrid_EmailDeliverySimplified')) {
-            parent::__construct();
-
+        $apikey = $this->generalSettings->getAPIKey();
+        if (empty($apikey) || ! $this->moduleManager->isOutputEnabled('SendGrid_EmailDeliverySimplified')) {
             return;
         }
 
@@ -87,10 +83,10 @@ class Transport implements TransportInterface
             ]
         ]);
 
-        $this->_updateInternalMessage();
+        $this->updateInternalMessage();
         $this->_sent = false;
 
-        $this->_zendTransport = new Smtp($options);
+        $this->zendTransport = new Smtp($options);
     }
 
   /**
@@ -98,14 +94,14 @@ class Transport implements TransportInterface
    *
    * @return void
    */
-    private function _updateInternalMessage()
+    private function updateInternalMessage()
     {
-        $from         = trim($this->_generalSettings->getFrom());
-        $from_name    = trim($this->_generalSettings->getFromName());
-        $reply_to     = trim($this->_generalSettings->getReplyTo());
-        $categories   = explode(',', $this->_generalSettings->getCategories());
-        $template     = trim($this->_generalSettings->getTemplateID());
-        $asm_group_id = trim($this->_generalSettings->getAsmGroupId());
+        $from         = trim($this->generalSettings->getFrom());
+        $from_name    = trim($this->generalSettings->getFromName());
+        $reply_to     = trim($this->generalSettings->getReplyTo());
+        $categories   = explode(',', $this->generalSettings->getCategories());
+        $template     = trim($this->generalSettings->getTemplateID());
+        $asm_group_id = trim($this->generalSettings->getAsmGroupId());
 
         $xsmtpapi_header['category'] = [ 'magento2_sendgrid_plugin' ];
         foreach ($categories as $category) {
@@ -127,20 +123,20 @@ class Transport implements TransportInterface
         $this->_zendMessage->setHeaders($headers);
 
         if (! empty($from)) {
-            $this->_zendMessage->setFrom($from);
+            $this->message->setFrom($from);
         }
 
         if (! empty($from_name) and ! empty($from)) {
-            $this->_zendMessage->setFrom($from, $from_name);
+            $this->message->setFrom($from, $from_name);
         }
 
         if (! empty($from_name) and empty($from)) {
-            $initial_from = $this->_zendMessage->getFrom();
-            $this->_zendMessage->setFrom($initial_from, $from_name);
+            $initial_from = $this->message->getFrom();
+            $this->message->setFrom($initial_from, $from_name);
         }
 
         if (! empty($reply_to)) {
-            $this->_zendMessage->setReplyTo($reply_to);
+            $this->message->setReplyTo($reply_to);
         }
     }
 
@@ -149,42 +145,41 @@ class Transport implements TransportInterface
    *
    * @return string
    */
-    private function _getAPIMessage()
+    private function getAPIMessage()
     {
         // Model values
-        $from         = trim($this->_generalSettings->getFrom());
-        $from_name    = trim($this->_generalSettings->getFromName());
-        $reply_to     = trim($this->_generalSettings->getReplyTo());
-        $categories   = explode(',', $this->_generalSettings->getCategories());
-        $template     = trim($this->_generalSettings->getTemplateID());
-        $asm_group_id = trim($this->_generalSettings->getAsmGroupId());
+        $from         = trim($this->generalSettings->getFrom());
+        $from_name    = trim($this->generalSettings->getFromName());
+        $reply_to     = trim($this->generalSettings->getReplyTo());
+        $categories   = explode(',', $this->generalSettings->getCategories());
+        $template     = trim($this->generalSettings->getTemplateID());
+        $asm_group_id = trim($this->generalSettings->getAsmGroupId());
 
         // Default category
         $categories[] = 'magento2_sendgrid_plugin';
 
         // Message values
-        // FIXME: このタイミングで to とか情報を移したい
-        $recipients = $this->_message->getRecipients();
-        $subject    = trim($this->_message->getSubject());
-        $text       = $this->_message->getBodyText(false);
-        $html       = $this->_message->getBodyHtml(false);
+        $recipients = $this->message->getTo();
+        $subject    = trim($this->message->getSubject());
+        $text       = $this->message->getBodyText(false);
+        // $html       = $this->message->getBodyHtml(false);
 
         if ($text instanceof \Zend_Mime_Part) {
             $text = $text->getRawContent();
         }
 
-        if ($html instanceof \Zend_Mime_Part) {
-            $html = $html->getRawContent();
-        }
+        // if ($html instanceof \Zend_Mime_Part) {
+        //     $html = $html->getRawContent();
+        // }
 
         // If no from field in model, get message from
         if (empty($from)) {
-            $from = $this->_message->getFrom();
+            $from = $this->message->getFrom();
         }
 
         // If no reply to field in model, get message reply to
         if (empty($reply_to)) {
-            $reply_to = $this->_message->getReplyTo();
+            $reply_to = $this->message->getReplyTo();
         }
 
         // Initializations
@@ -272,8 +267,8 @@ class Transport implements TransportInterface
     public function setMessage(MessageInterface $message)
     {
 
-        $this->_message = $message;
-        $this->_updateInternalMessage();
+        $this->message = $message;
+        $this->updateInternalMessage();
     }
 
   /**
@@ -285,10 +280,13 @@ class Transport implements TransportInterface
     public function sendMessage()
     {
         try {
-            $this->_logger->debug('[SendGrid] Sending email.');
+            $this->logger->debug('[SendGrid] Sending email.');
 
-            $apikey = $this->_generalSettings->getAPIKey();
-            $send_method = $this->_generalSettings->getSendMethod();
+            $apikey = $this->generalSettings->getAPIKey();
+            $send_method = $this->generalSettings->getSendMethod();
+
+            if (! $this->moduleManager->isOutputEnabled('SendGrid_EmailDeliverySimplified')) {
+                $this->logger->debug('[SendGrid] Module is not enabled. Email is sent via vendor Zend Mail.');
 
             if (! $this->_moduleManager->isOutputEnabled('SendGrid_EmailDeliverySimplified')) {
                 $this->_logger->debug('[SendGrid] Module is not enabled. Email is sent via vendor Zend Mail.');
@@ -301,7 +299,7 @@ class Transport implements TransportInterface
                 parent::send($this->_message);
             } else {
                 // Compose JSON payload of email send request
-                $payload = $this->_getAPIMessage();
+                $payload = $this->getAPIMessage();
 
                 // Mail send URL
                 $url = Tools::SG_API_URL . 'v3/mail/send';
@@ -324,7 +322,7 @@ class Transport implements TransportInterface
                 }
             }
         } catch (\Exception $e) {
-            $this->_logger->debug('[SendGrid] Error sending email : ' . $e->getMessage());
+            $this->logger->debug('[SendGrid] Error sending email : ' . $e->getMessage());
             throw new MailException(new Phrase($e->getMessage()), $e);
         }
     }
@@ -336,6 +334,6 @@ class Transport implements TransportInterface
    */
     public function getMessage()
     {
-        return $this->_message;
+        return $this->message;
     }
 }
