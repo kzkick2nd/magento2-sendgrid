@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../Magento/Backend/etc/menu.xsd">
+    <menu>
+        <add id="SendGrid_EmailDeliverySimplified::SendGridAdmin" title="SendGrid" module="SendGrid_EmailDeliverySimplified" sortOrder="500" parent="Magento_Backend::system" resource="SendGrid_EmailDeliverySimplified::SendGridAdmin"/>
+        <add id="SendGrid_EmailDeliverySimplified::Settings" title="Settings" module="SendGrid_EmailDeliverySimplified" sortOrder="100" parent="SendGrid_EmailDeliverySimplified::SendGridAdmin" action="SendGridAdmin/Settings" resource="SendGrid_EmailDeliverySimplified::Settings"/>
+        <add id="SendGrid_EmailDeliverySimplified::Statistics" title="Statistics" module="SendGrid_EmailDeliverySimplified" sortOrder="200" parent="SendGrid_EmailDeliverySimplified::SendGridAdmin" action="SendGridAdmin/Statistics" resource="SendGrid_EmailDeliverySimplified::Statistics"/>
+    </menu>
+</config>

@@ -1,0 +1,64 @@
+<script type="text/javascript">
+  require(['jquery', 'jquery/ui', 'sendgrid_jquery', 'sendgrid_chart', 'sendgrid_statistics'], function() {
+    jQuery(document).ready( function($) {
+      SGStatistics.init($);
+    });
+  });
+</script>
+
+<div style="padding-bottom: 15px;">
+  <img src="<?php echo $block->getSendGridLogo(); ?>" class="sendgrid_logo" alt=""/>
+</div>
+<div class="sendgrid_stats_fields">
+  <div class="sendgrid_float_left">
+    <label>Start date:</label>
+    <input type="text" id="sendgrid-start-date"></input>
+    <label>End date:</label>
+    <input type="text" id="sendgrid-end-date"></input>
+    <label>Category:</label> 
+    <select class="sendgrid_select" id="sendgrid-category">
+      <option value="magento2_sendgrid_plugin">Magento</option>
+      <?php $categories = $block->getStatsCategories(); ?>
+
+      <?php if ( is_array( $categories ) and count( $categories ) > 0 ): ?>
+      <optgroup label="Categories:">
+        <?php foreach ( $categories as $cateogry ): ?>
+          <option value="<?php echo trim( $cateogry ); ?>"><?php echo trim( $cateogry ); ?></option>
+        <?php endforeach; ?>
+      </optgroup>
+      <?php endif; ?>
+    </select>
+  </div>
+  <div class="sendgrid-stats-load-div"> 
+    <div class="sk-fading-circle" id="sendgrid_stats_load">
+      <div class="sk-circle1 sk-circle"></div>
+      <div class="sk-circle2 sk-circle"></div>
+      <div class="sk-circle3 sk-circle"></div>
+      <div class="sk-circle4 sk-circle"></div>
+      <div class="sk-circle5 sk-circle"></div>
+      <div class="sk-circle6 sk-circle"></div>
+      <div class="sk-circle7 sk-circle"></div>
+      <div class="sk-circle8 sk-circle"></div>
+      <div class="sk-circle9 sk-circle"></div>
+      <div class="sk-circle10 sk-circle"></div>
+      <div class="sk-circle11 sk-circle"></div>
+      <div class="sk-circle12 sk-circle"></div>
+    </div>
+    &nbsp;
+  </div>  
+  <div class="sendgrid_float_left">
+    <input type="button" value="Apply" id="sendgrid-stats-apply" class="sendgrid_button"></input>
+  </div>  
+</div>
+
+<div class="sendgrid_error_div">
+  <h4 id="sendgrid_error"> No data to display. Please check your SendGrid Extension Settings and try again. </h4> &nbsp;
+</div>
+
+<div style="width:90%;">
+  <canvas id="sg_stats_canvas"></canvas>
+</div>
+
+<input type="hidden" id="statistics-base-url" value="<?php echo $block->getStatsBaseUrl(); ?>"></input>
+<input type="hidden" id="statistics-invalidate-token-url" value="<?php echo $block->getInvalidateTokenBaseUrl(); ?>"></input>
+<input type="hidden" id="statistics-token" value="<?php echo $block->getStatsToken(); ?>"></input>

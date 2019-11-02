@@ -1,0 +1,176 @@
+<script type="text/javascript">
+  // This is how we load necessary JS into our page
+  require(['jquery', 'sendgrid_jquery', 'sendgrid' ], function() {
+    jQuery(document).ready( function($) {
+      init_sendgrid_settings($);
+    });
+  });
+</script>
+
+<img src="<?php echo $block->getSendGridLogo(); ?>" class="sendgrid_logo" alt=""/>
+
+<table class="sg-settings-table">
+  <form action="<?php echo $block->getUrl('*/*') ?>" method="post" enctype="multipart/form-data">
+    <?php echo $block->getBlockHtml('formkey')?>
+    <input type="hidden" name="general_settings" value="true"/>
+    <tr>
+      <td colspan="2">
+        <h3> Authentication </h3>
+      </td>
+    </tr>
+    <tr>
+      <td> API Key : </td>
+      <td>
+        <input type="password" name="apikey" value="<?php echo $block->getAPIKey(); ?>"/>
+      </td>
+    </tr>
+    <tr>
+      <td> Send Method : </td>
+      <td>
+        <select id="send-method" name="send_method" class="send_method_select sendgrid_select">
+          <?php foreach ( $block->getAllowedSendMethods() as $method ): ?>
+            <option value="<?php echo strtolower( $method ); ?>" <?php echo ( strtolower( $method ) == $block->getSendMethod() ) ? 'selected' : '' ?>>
+              <?php echo strtoupper( $method ); ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </td>
+    </tr>
+    <tr id="sg-smtp-port">
+      <td> Port : </td>
+      <td>
+        <select name="smtp_port" class="sendgrid_select">
+          <?php foreach ( $block->getAllowedSMTPPorts() as $port ): ?>
+            <option value="<?php echo $port; ?>" <?php echo ( $port == $block->getSMTPPort() ) ? 'selected' : '' ?>>
+              <?php echo $port; ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <h3> Email Settings </h3>
+      </td>
+    </tr>
+    <tr>
+      <td> From Name : </td>
+      <td>
+        <input type="text" name="from_name" value="<?php echo $block->getFromName(); ?>"/>
+        <p><em>Name as it will appear in recipient clients.</em></p>
+      </td>
+    </tr>
+    <tr>
+      <td> Sending Address : </td>
+      <td>
+        <input type="email" name="from" value="<?php echo $block->getFrom(); ?>"/>
+        <p><em>Email address from which the message will be sent.</em></p>
+      </td>
+    </tr>
+    <tr>
+      <td> Reply Address : </td>
+      <td>
+        <input type="email" name="reply_to" value="<?php echo $block->getReplyTo(); ?>"/>
+        <p><em>Email address where replies will be returned.</em></p>
+      </td>
+    </tr>
+    <tr>
+      <td> Categories : </td>
+      <td>
+        <input type="text" name="categories" value="<?php echo $block->getCategories(); ?>"/>
+        <p><small><em>Leave blank to send without categories.</em></small></p>
+        <p><em>Associates the category of the email this should be logged as. <br /> Categories must be separated by commas (Example: category1,category2).</em></p>
+      </td>
+    </tr>
+    <tr>
+      <td> Template : </td>
+      <td>
+        <input type="text" name="template" value="<?php echo $block->getTemplateID(); ?>"/>
+        <p><small><em>Leave blank to send without template.</em></small></p>
+        <p><em>The template ID used to send emails. <br /> Example: 0b1240a5-188d-4ea7-93c1-19a7a89466b2.</em></p>
+        <p><em>*Your API Key will need permissions for Read Access to the Template Engine.</p>
+      </td>
+    </tr>
+    <tr>
+      <td> Unsubscribe Group : </td>
+      <td>
+        <?php $groups = $block->getAsmGroups(); ?>
+        <select name="asm_group" class="unsubscribe_select" <?php echo count($groups) ? "" : "disabled" ?> >
+          <option value="0">Global Unsubscribe</option>
+          <?php
+            foreach ($groups as $group) {
+              $selected = ( $group["id"] == $block->getAsmGroupId() ) ? 'selected' : '';
+              echo '<option value="' . $group["id"] . '" ' . $selected . ' >' . $group["name"] . '</option>';
+            }
+          ?>
+        </select>
+        <p><em>User will have the option to unsubscribe from the selected group.</em></p>
+        <p><em>*Your API Key will need permissions for Read Access to the Unsubscribe Groups.</em></p>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <h3> Statistics Settings </h3>
+      </td>
+    </tr>
+    <tr>
+      <td> Categories : </td>
+      <td>
+        <input type="text" name="stats_categories" value="<?php echo $block->getStatsCategories(); ?>"/>
+        <p><small><em>Leave blank to display only default stats.</em></small></p>
+        <p><em>Add some categories for which you would like to see your stats.<br/>Categories must be separated by commas (Example: category1,category2).</em></p>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="Update Settings" class="sendgrid_button"/>
+      </td>
+    </tr>
+  </form>
+  <tr>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <?php if ( $block->isAPIKeyValid() ): ?>
+    <form id="sg-send-test-form" action="<?php echo $block->getUrl('*/*') ?>" method="post" enctype="multipart/form-data">
+      <?php echo $block->getBlockHtml('formkey')?>
+      <input type="hidden" name="send_test" value="true"/>
+      <tr>
+        <td colspan="2">
+          <h3> Send Test </h3>
+        </td>
+      </tr>
+      <tr>
+        <td> To : </td>
+        <td>
+          <input type="email" name="send_to" required="true" value=""/>
+        </td>
+      </tr>
+      <tr>
+        <td> Subject : </td>
+        <td>
+          <input type="text" name="send_subject" required="true" value=""/>
+        </td>
+      </tr>
+      <tr>
+        <td> Plain Body : </td>
+        <td>
+          <textarea name="send_body_text" rows="5"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td> HTML Body : </td>
+        <td>
+          <textarea name="send_body_html" rows="5"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <input type="submit" value="Send" class="sendgrid_button"/>
+        </td>
+      </tr>
+    </form>
+  <?php endif; ?>
+</table>

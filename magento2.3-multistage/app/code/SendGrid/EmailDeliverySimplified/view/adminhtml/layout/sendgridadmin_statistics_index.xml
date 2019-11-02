@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-1column" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd">
+  <head>
+    <css src="SendGrid_EmailDeliverySimplified::css/sendgrid.css"/>
+    <css src="SendGrid_EmailDeliverySimplified::css/sendgrid_jquery_ui.css"/>
+    <css src="SendGrid_EmailDeliverySimplified::css/sendgrid_jquery_ui_structure.css"/>
+    <title> </title>
+  </head>
+  <body>
+    <referenceContainer name="content">
+      <block class="SendGrid\EmailDeliverySimplified\Block\Adminhtml\StatisticsBlock" name="Statistics" template="SendGrid_EmailDeliverySimplified::statistics/statistics.phtml" />
+    </referenceContainer>
+  </body>
+</page>

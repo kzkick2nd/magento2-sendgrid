@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../app/code/Magento/Webapi/etc/webapi.xsd">
+    <route url="/v1/sgstats/get/:category/:start_date/:end_date" method="GET">
+        <service class="SendGrid\EmailDeliverySimplified\Api\Statistics" method="getStats"/>
+        <resources>
+            <resource ref="Magento_Backend::extensions"/>
+        </resources>
+    </route>
+
+    <route url="/v1/sgstats/token/invalidate/:token" method="GET">
+        <service class="SendGrid\EmailDeliverySimplified\Api\Statistics" method="invalidateToken"/>
+        <resources>
+            <resource ref="Magento_Backend::extensions"/>
+        </resources>
+    </route>
+</routes>
