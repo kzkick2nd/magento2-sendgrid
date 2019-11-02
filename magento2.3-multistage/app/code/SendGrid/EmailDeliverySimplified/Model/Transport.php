@@ -208,10 +208,10 @@ class Transport implements TransportInterface
         }
 
         // HTML content
-        if (! empty($html)) {
-            $content = new API\Content('text/html', $html);
-            $mail->addContent($content);
-        }
+        // if (! empty($html)) {
+        //     $content = new API\Content('text/html', $html);
+        //     $mail->addContent($content);
+        // }
 
         // Reply to
         if (! empty($reply_to)) {
@@ -235,16 +235,16 @@ class Transport implements TransportInterface
         $mail->addPersonalization($personalization);
 
         // Attachments
-        $parts = $this->_message->getParts();
-        foreach ($parts as $part) {
-            $attachment = new API\Attachment();
-            $attachment->setContent(base64_encode($part->getRawContent()));
-            $attachment->setType($part->type);
-            $attachment->setFilename($part->filename);
-            $attachment->setDisposition($part->disposition);
+        // $parts = $this->_message->getParts();
+        // foreach ($parts as $part) {
+        //     $attachment = new API\Attachment();
+        //     $attachment->setContent(base64_encode($part->getRawContent()));
+        //     $attachment->setType($part->type);
+        //     $attachment->setFilename($part->filename);
+        //     $attachment->setDisposition($part->disposition);
 
-            $mail->addAttachment($attachment);
-        }
+        //     $mail->addAttachment($attachment);
+        // }
 
         // asm group id
         if ($asm_group_id != false and $asm_group_id != 0) {
