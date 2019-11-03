@@ -12,6 +12,8 @@ use SendGrid\EmailDeliverySimplified\Helper\API;
 use SendGrid\EmailDeliverySimplified\Helper\Tools;
 use SendGrid\EmailDeliverySimplified\Model\GeneralSettings;
 
+use Zend\Mime\Decode;
+
 class Transport implements TransportInterface
 {
   /**
@@ -156,12 +158,12 @@ class Transport implements TransportInterface
         // Message values
         $recipients = $this->message->getTo();
         $subject    = trim($this->message->getSubject());
-        $text       = $this->message->getBodyText(false);
+        $text       = quoted_printable_decode($this->message->getBodyText());
         // $html       = $this->message->getBodyHtml(false);
 
-        if ($text instanceof \Zend_Mime_Part) {
-            $text = $text->getRawContent();
-        }
+        // if ($text instanceof \Zend_Mime_Part) {
+        //     $text = $text->getRawContent();
+        // }
 
         // if ($html instanceof \Zend_Mime_Part) {
         //     $html = $html->getRawContent();
